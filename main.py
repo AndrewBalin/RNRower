@@ -134,7 +134,7 @@ class Rower:
         self.right_motor.forward(speed)
 
         i = 0
-        while start_time + duration < time():
+        while start_time + duration > time():
 
             self.camera.get_frame()
 
@@ -147,7 +147,7 @@ class Rower:
     def turn(self, degrees):
 
         start_time = time()
-        while start_time + (3 * (abs(degrees) / 90)) < time():
+        while start_time + (3 * (abs(degrees) / 90)) > time():
 
             if degrees < 0:
                 self.left_motor.backward(self.speed)

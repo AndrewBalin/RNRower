@@ -9,7 +9,7 @@ class Drone:
 
     def __init__(self, ip_drone, ip_cam):
 
-        self.cap = cv2.VideoCapture(f'rtsp://hackaton1:hackaton2023@{ip_cam}/stream2')
+        self.cap = cv2.VideoCapture()#f'rtsp://hackaton1:hackaton2023@{ip_cam}/stream2'
         self.ip = ip_drone
 
     def get_frame(self):
@@ -76,9 +76,13 @@ class Motor:    # Управление мотором
         self.__pwm_forward.start()
         self.__pwm_backward.start()
 
-    def pwm_on_pin(self, pin, speed):  # Подаем нулевой ШИМ
+    def pwm_on_pin(self, pin, direction):  # Подаем нулевой ШИМ
+
 
         while True:
+
+            speed = self.__forward_speed if direction > 0 else self.__backward_speed
+
             if speed > 0:
                 GPIO.output(pin, GPIO.HIGH)
                 sleep(max(self.__motor_pwm_period * speed, 0))

@@ -136,7 +136,7 @@ class Rower:
         i = 0
         while start_time + duration > time():
 
-            self.camera.get_frame()
+            #self.camera.get_frame()
 
             if i % 5 == 0:
                 # TODO: Обработчик кадров

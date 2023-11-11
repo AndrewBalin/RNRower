@@ -83,6 +83,8 @@ class Motor:    # Управление мотором
 
             speed = self.__forward_speed if direction > 0 else self.__backward_speed
 
+            print(f'forward_speed: {self.__forward_speed} | backward_speed: {self.__backward_speed}')
+
             if speed > 0:
                 GPIO.output(pin, GPIO.HIGH)
                 sleep(max(self.__motor_pwm_period * speed, 0))

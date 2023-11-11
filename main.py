@@ -98,11 +98,11 @@ class Motor:    # Управление мотором
     def set_backward_speed(self, speed=1):
         self.__backward_speed = speed
 
-    def forward(self, speed, duration):
+    def forward(self, speed):
         self.set_forward_speed(speed)
         self.set_backward_speed(0)
 
-    def backward(self, speed, duration):
+    def backward(self, speed):
         self.set_forward_speed(0)
         self.set_backward_speed(speed)
 

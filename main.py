@@ -70,8 +70,8 @@ class Motor:    # Управление мотором
 
         self.__max_speed = 1
 
-        self.__pwm_forward = threading.Thread(target=self.pwm_on_pin, args=(self.__forward_pin, self.__forward_speed))  # Сохраняем ШИМ в отдельный поток для управления
-        self.__pwm_backward = threading.Thread(target=self.pwm_on_pin, args=(self.__backward_pin, self.__backward_speed))  # Сохраняем ШИМ в отдельный поток для управления
+        self.__pwm_forward = threading.Thread(target=self.pwm_on_pin, args=(self.__forward_pin, 1))  # Сохраняем ШИМ в отдельный поток для управления
+        self.__pwm_backward = threading.Thread(target=self.pwm_on_pin, args=(self.__backward_pin, -1))  # Сохраняем ШИМ в отдельный поток для управления
 
         self.__pwm_forward.start()
         self.__pwm_backward.start()

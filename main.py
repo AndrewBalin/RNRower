@@ -1,8 +1,42 @@
 from time import time, sleep
 import cv2
-import threading
+from threading import Thread
 from math import inf
 import RPi.GPIO as GPIO
+
+
+class Debugger:
+
+    def __init__(self):
+
+        self.left_motor_forward_speed = 0
+        self.left_motor_backward_speed = 0
+
+        self.right_motor_forward_speed = 0
+        self.right_motor_backward_speed = 0
+
+        Thread(target=self.printer)
+
+    def printer(self):
+
+        while True:
+            print(f'Motors:')
+            print(f'\tLeft:')
+            print(f'\t\tForward: {self.left_motor_forward_speed}')
+            print(f'\t\tBackward: {self.left_motor_backward_speed}')
+            print(f'\tRight:')
+            print(f'\t\tForward: {self.right_motor_forward_speed}')
+            print(f'\t\tBackward: {self.right_motor_backward_speed}')
+
+            sleep(1)
+
+    def set_left_motor_speed(self, forward_speed, backward_speed):
+        self.left_motor_forward_speed = forward_speed
+        self.left_motor_backward_speed = backward_speed
+
+    def set_right_motor_speed(self, forward_speed, backward_speed):
+        self.right_motor_forward_speed = forward_speed
+        self.right_motor_backward_speed = backward_speed
 
 
 class Drone:
@@ -31,6 +65,8 @@ class Camera:
 
     def __init__(self, cam_id):
 
+        self.manometer_value = None
+        self.manometer_frame = None
         self.cap = cv2.VideoCapture(cam_id)
 
     def get_frame(self):
@@ -54,10 +90,20 @@ class Camera:
 
         return 0
 
+    def save_manometer_frame(self):
+
+        self.manometer_frame = self.get_frame()
+
+        # TODO: Обработка кадра со манометром
+
+        self.manometer_value = 0
+
+        return 0
+
 
 class Motor:    # Управление мотором
 
-    def __init__(self, forward_pin, backward_pin):  # Инициализируем порты
+    def __init__(self, forward_pin, backward_pin, directon):  # Инициализируем порты
 
         GPIO.setup((forward_pin, backward_pin), GPIO.OUT, initial=GPIO.LOW)
 
@@ -70,8 +116,8 @@ class Motor:    # Управление мотором
 
         self.__max_speed = 1
 
-        self.__pwm_forward = threading.Thread(target=self.pwm_on_pin, args=(self.__forward_pin, 1))  # Сохраняем ШИМ в отдельный поток для управления
-        self.__pwm_backward = threading.Thread(target=self.pwm_on_pin, args=(self.__backward_pin, -1))  # Сохраняем ШИМ в отдельный поток для управления
+        self.__pwm_forward = Thread(target=self.pwm_on_pin, args=(self.__forward_pin, 1))  # Сохраняем ШИМ в отдельный поток для управления
+        self.__pwm_backward = Thread(target=self.pwm_on_pin, args=(self.__backward_pin, -1))  # Сохраняем ШИМ в отдельный поток для управления
 
         self.__pwm_forward.start()
         self.__pwm_backward.start()
@@ -83,7 +129,7 @@ class Motor:    # Управление мотором
 
             speed = self.__forward_speed if direction > 0 else self.__backward_speed
 
-            print(f'forward_speed: {self.__forward_speed} | backward_speed: {self.__backward_speed}')
+            #print(f'forward_speed: {self.__forward_speed} | backward_speed: {self.__backward_speed}')
 
             if speed > 0:
                 GPIO.output(pin, GPIO.HIGH)
@@ -151,11 +197,15 @@ class Rower:
 
             if degrees < 0:
                 self.left_motor.backward(self.speed)
-                self.right_motor.formard(self.speed)
+                self.right_motor.formard(self.speed*0.78)
 
             else:
                 self.left_motor.formard(self.speed)
-                self.right_motor.backward(self.speed)
+                self.right_motor.backward(self.speed*0.78)
+
+    def stop(self):
+        self.left_motor.stop()
+        self.right_motor.stop()
 
     def backward(self):
         pass
@@ -171,8 +221,8 @@ if __name__ == '__main__':
 
     GPIO.setmode(GPIO.BOARD)
 
-    l_motor = Motor(forward_pin=11, backward_pin=13)
-    r_motor = Motor(forward_pin=15, backward_pin=19)
+    l_motor = Motor(forward_pin=11, backward_pin=13, directon=-1)
+    r_motor = Motor(forward_pin=15, backward_pin=19, directon=1)
 
     cam = Camera(0)
 
@@ -183,6 +233,7 @@ if __name__ == '__main__':
     rower.forward(.5, 5)
     rower.turn(10)
     rower.forward(.9, 10)
+    rower.stop()
 
     while True:
         pass
@@ -192,10 +243,3 @@ if __name__ == '__main__':
 
 
 # TODO: Для мотора (шим и продолжительность)
-
-
-
-
-
-
-
